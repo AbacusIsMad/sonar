@@ -92,12 +92,12 @@ def signal_process( Qin, Qdata, pulse_a, Nseg, Nplot, fs, maxdist, temperature, 
         if isinstance(chunk, str) and chunk == "EOT":
             break;
         Xchunk =  crossCorr( chunk, pulse_a ) 
-        Xchunk = np.reshape(Xchunk,(1,len(Xchunk)))
+        #Xchunk = np.reshape(Xchunk,(1,len(Xchunk)))
         
         # Overlap-and-add
         # If chunk is empty, add zeros
         try:
-            Xrcv[cur_idx:(cur_idx+len(chunk)+len(pulse_a)-1)] += Xchunk[0,:];
+            Xrcv[cur_idx:(cur_idx+len(chunk)+len(pulse_a)-1)] += Xchunk[:];
         except:
             1
             #print("empty audio stream. Skipping.")
@@ -107,6 +107,7 @@ def signal_process( Qin, Qdata, pulse_a, Nseg, Nplot, fs, maxdist, temperature, 
         if( found_delay and (cur_idx >= Nseg) ):
             # If delay has been found once (elif statement below) keep finding
             # This fixes drift on raspberry pi, but slows things down
+            """
             if found_delay:
                 idx = findDelay( abs(Xrcv), Nseg );
                 if idx is None:
@@ -114,7 +115,7 @@ def signal_process( Qin, Qdata, pulse_a, Nseg, Nplot, fs, maxdist, temperature, 
                 Xrcv = np.roll(Xrcv, -idx );
                 Xrcv[-idx:] = 0;
                 cur_idx = cur_idx - idx;
-            
+            """
             # crop a segment from Xrcv and interpolate to Nplot
             # Divide by peak value (index 0), or a non-zero number in case audio buffer is empty
             Xrcv_seg = (abs(Xrcv[:maxsamp].copy()) / np.maximum(abs( Xrcv[0] ),1e-5) ) ** 0.5 ;   
